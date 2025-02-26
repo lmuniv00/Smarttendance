@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "57889017014",
+    "project_id": "ble-attendance-4d245",
+    "storage_bucket": "ble-attendance-4d245.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:57889017014:android:e455e05076088a9b5a2a17",
+        "android_client_info": {
+          "package_name": "com.example.smarttendance"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB66KoyXo5mzEg7MQxNO8VGOlh2O62VwP0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
