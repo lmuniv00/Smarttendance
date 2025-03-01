@@ -1,4 +1,4 @@
-# flutter_application_1
+# Smarttendance
 
 A new Flutter project.
 
