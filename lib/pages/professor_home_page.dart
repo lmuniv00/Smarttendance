@@ -55,6 +55,10 @@ class _ProfessorHomePageState extends State<ProfessorHomePage> {
     });
   }
 
+  void _refreshPage() async {
+    await fetchProfessorCourses();
+  }
+
   Future<void> _updateStudentAttendance() async {
     try {
       // Validate selected course
@@ -380,6 +384,10 @@ class _ProfessorHomePageState extends State<ProfessorHomePage> {
         ),
         backgroundColor: Colors.blueGrey.shade900,
         actions: [
+          IconButton(
+            onPressed: _refreshPage,
+            icon: const Icon(Icons.refresh, color: Colors.white),
+          ),
           IconButton(
             onPressed: _signUserOut,
             icon: const Icon(Icons.logout, color: Colors.white),

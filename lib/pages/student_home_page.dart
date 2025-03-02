@@ -53,10 +53,21 @@ class StudentHomePageState extends State<StudentHomePage> {
     return uuid.v5(Uuid.NAMESPACE_OID, studentId);
   }
 
+  void _refreshPage() async {
+    await _initPlatformState();
+    await _fetchStudentCourses();
+  }
+
   Future<void> _initPlatformState() async {
-    final isSupported = await blePeripheral.isSupported;
+    final bool isSupported = await blePeripheral.isSupported;
+    final bool isAdvertising = await blePeripheral.isAdvertising;
+
     setState(() {
       _isSupported = isSupported;
+      if (isAdvertising) {
+        blePeripheral.stop();
+        _isAdvertising = false;
+      }
     });
   }
 
@@ -139,6 +150,10 @@ class StudentHomePageState extends State<StudentHomePage> {
         ),
         backgroundColor: Colors.blueGrey.shade900,
         actions: [
+          IconButton(
+            onPressed: _refreshPage,
+            icon: const Icon(Icons.refresh, color: Colors.white),
+          ),
           IconButton(
             onPressed: _signUserOut,
             icon: const Icon(Icons.logout, color: Colors.white),
