@@ -585,6 +585,9 @@ class _ProfessorHomePageState extends State<ProfessorHomePage> {
                             itemCount: controller.scanResults.length,
                             itemBuilder: (context, index) {
                               final data = controller.scanResults[index];
+                              final metrics = controller.getMetricsForDevice(
+                                data.device.remoteId.toString(),
+                              );
                               return Card(
                                 color: Colors.blueGrey.shade300,
                                 elevation: 3,
@@ -615,6 +618,59 @@ class _ProfessorHomePageState extends State<ProfessorHomePage> {
                                         style: const TextStyle(
                                             color: Colors.white70),
                                       ),
+                                      if (metrics != null) ...[
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          "RSSI: ${metrics.rssi} dBm",
+                                          style: const TextStyle(
+                                              color: Colors.white70),
+                                        ),
+                                        Text(
+                                          "Smoothed RSSI: ${metrics.smoothedRssi.toStringAsFixed(2)} dBm",
+                                          style: const TextStyle(
+                                              color: Colors.white70),
+                                        ),
+                                        Text(
+                                          "Avg RSSI: ${metrics.averageRssi.toStringAsFixed(2)} dBm",
+                                          style: const TextStyle(
+                                              color: Colors.white70),
+                                        ),
+                                        Text(
+                                          "Min/Max RSSI: ${metrics.minRssi} / ${metrics.maxRssi}",
+                                          style: const TextStyle(
+                                              color: Colors.white70),
+                                        ),
+                                        Text(
+                                          "Readings: ${metrics.totalReadings}",
+                                          style: const TextStyle(
+                                              color: Colors.white70),
+                                        ),
+                                        Text(
+                                          "Distance: ${metrics.estimatedDistance != null ? "${metrics.estimatedDistance!.toStringAsFixed(2)} m" : "N/A"}",
+                                          style: const TextStyle(
+                                              color: Colors.white70),
+                                        ),
+                                        Text(
+                                          "Tx Power: ${metrics.advertisementData.txPowerLevel ?? "N/A"}",
+                                          style: const TextStyle(
+                                              color: Colors.white70),
+                                        ),
+                                        Text(
+                                          "Connectable: ${metrics.advertisementData.connectable}",
+                                          style: const TextStyle(
+                                              color: Colors.white70),
+                                        ),
+                                        Text(
+                                          "Seen: ${metrics.timeSinceLastSeen.inSeconds}s ago",
+                                          style: const TextStyle(
+                                              color: Colors.white70),
+                                        ),
+                                        Text(
+                                          "Latency: ${metrics.latencyMs != null ? '${metrics.latencyMs} ms' : 'N/A'}",
+                                          style: const TextStyle(
+                                              color: Colors.white70),
+                                        ),
+                                      ],
                                     ],
                                   ),
                                   trailing: Text(

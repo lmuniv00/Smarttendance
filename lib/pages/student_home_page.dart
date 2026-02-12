@@ -46,6 +46,7 @@ class StudentHomePageState extends State<StudentHomePage> {
       localName: 'Student_Device',
       manufacturerId: 1234,
       manufacturerData: Uint8List.fromList([1, 2, 3, 4, 5, 6]),
+      includePowerLevel: true,
     );
   }
 
