@@ -240,6 +240,7 @@ class _ProfessorHomePageState extends State<ProfessorHomePage> {
   @override
   void initState() {
     super.initState();
+    Get.put(BluetoothController());
     fetchProfessorCourses();
   }
 
@@ -540,8 +541,55 @@ class _ProfessorHomePageState extends State<ProfessorHomePage> {
                         },
                       ),
                 const SizedBox(height: 30),
+                // ✅ Logging Toggle Card
                 GetBuilder<BluetoothController>(
-                  init: BluetoothController(),
+                  builder: (controller) {
+                    return Card(
+                      color: Colors.blueGrey.shade400,
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "Enable Scan Logging",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Obx(() => Switch(
+                                  value: controller.isLoggingEnabled.value,
+                                  activeColor: Colors.greenAccent,
+                                  onChanged: (value) {
+                                    controller.isLoggingEnabled.value = value;
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          value
+                                              ? "Logging ENABLED"
+                                              : "Logging DISABLED",
+                                        ),
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+                                  },
+                                )),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+                GetBuilder<BluetoothController>(
                   builder: (controller) {
                     return Column(
                       children: [
@@ -642,11 +690,6 @@ class _ProfessorHomePageState extends State<ProfessorHomePage> {
                                         ),
                                         Text(
                                           "Readings: ${metrics.totalReadings}",
-                                          style: const TextStyle(
-                                              color: Colors.white70),
-                                        ),
-                                        Text(
-                                          "Distance: ${metrics.estimatedDistance != null ? "${metrics.estimatedDistance!.toStringAsFixed(2)} m" : "N/A"}",
                                           style: const TextStyle(
                                               color: Colors.white70),
                                         ),

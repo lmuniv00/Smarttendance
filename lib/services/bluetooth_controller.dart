@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:get/get.dart';
@@ -9,7 +11,6 @@ class DeviceMetrics {
 
   int rssi;
   double smoothedRssi;
-  double? estimatedDistance;
 
   int minRssi;
   int maxRssi;
@@ -56,21 +57,6 @@ class DeviceMetrics {
 
     lastSeen = DateTime.now();
     advertisementData = newAdv;
-
-    estimatedDistance =
-        _estimateDistance(smoothedRssi, advertisementData.txPowerLevel);
-  }
-
-  double? _estimateDistance(double rssi, int? txPower) {
-    if (txPower == null) return null;
-
-    double ratio = rssi / txPower;
-
-    if (ratio < 1.0) {
-      return pow(ratio, 10).toDouble();
-    } else {
-      return (0.89976 * pow(ratio, 7.7095) + 0.111).toDouble();
-    }
   }
 
   Duration get timeSinceLastSeen => DateTime.now().difference(lastSeen);
@@ -80,13 +66,23 @@ class BluetoothController extends GetxController {
   final RxList<ScanResult> scanResults = <ScanResult>[].obs;
   final RxList<String> scannedStudentUUIDs = <String>[].obs;
 
+  // ✅ Logging toggle
+  final RxBool isLoggingEnabled = false.obs;
+
+  // ✅ Store log lines for one scan session
+  final List<String> _currentSessionLogs = [];
+
   // ✅ NEW: Metrics storage
   final Map<String, DeviceMetrics> deviceMetrics = {};
+
+  final Set<String> _loggedDeviceIds = {};
 
   StreamSubscription<List<ScanResult>>? _scanSubscription;
 
   // ✅ NEW: Track scan start time for latency
   DateTime? _scanStartTime;
+
+  String? _currentSessionFileName;
 
   Future<void> requestPermissions() async {
     await [
@@ -97,13 +93,62 @@ class BluetoothController extends GetxController {
     ].request();
   }
 
-  void scanDevices(List<Guid> guidList) {
+  Future<void> _saveLogToFile(
+    DateTime scanStartTime,
+    DateTime scanEndTime,
+  ) async {
+    try {
+      final downloadsDir = await getDownloadsDirectory();
+
+      if (downloadsDir == null) {
+        print("Unable to access Downloads directory.");
+        return;
+      }
+
+      if (_currentSessionFileName == null) {
+        print("No session file name found.");
+        return;
+      }
+
+      final file = File("${downloadsDir.path}/$_currentSessionFileName");
+
+      const header =
+          "Timestamp,DeviceID,RSSI,AverageRSSI,MinRSSI,MaxRSSI,SmoothedRSSI,Latency(ms),TxPower,Connectable,ServiceUUID\n";
+
+      final buffer = StringBuffer();
+      buffer.write(header);
+
+      for (final line in _currentSessionLogs) {
+        buffer.writeln(line);
+      }
+
+      buffer.writeln();
+      buffer.writeln("scan_duration: [$scanStartTime] - [$scanEndTime]");
+
+      await file.writeAsString(buffer.toString());
+
+      print("✅ CSV log saved at: ${file.path}");
+    } catch (e) {
+      print("❌ Error saving CSV file: $e");
+    }
+  }
+
+  void scanDevices(List<Guid> guidList) async {
     scanResults.clear();
     deviceMetrics.clear();
+    _loggedDeviceIds.clear(); // ✅ Reset per scan session
 
     FlutterBluePlus.stopScan();
 
-    _scanStartTime = DateTime.now(); // ✅ record scan start
+    _scanStartTime = DateTime.now();
+
+    _currentSessionFileName =
+        "smarttendance_${DateTime.now().microsecondsSinceEpoch}.csv";
+
+    // ✅ If logging enabled, start fresh session
+    if (isLoggingEnabled.value) {
+      _currentSessionLogs.clear();
+    }
 
     FlutterBluePlus.startScan(
       withServices: guidList,
@@ -111,7 +156,6 @@ class BluetoothController extends GetxController {
     );
 
     _scanSubscription = FlutterBluePlus.scanResults.listen((results) {
-      // 🔹 EXISTING LOGIC
       scanResults.assignAll(results);
 
       scannedStudentUUIDs.assignAll(
@@ -120,23 +164,62 @@ class BluetoothController extends GetxController {
         ),
       );
 
-      // ✅ NEW: Collect metrics per device with latency
       for (var result in results) {
         final id = result.device.remoteId.toString();
+
+        // 🚫 Skip if we've already processed this device
+        if (_loggedDeviceIds.contains(id)) {
+          continue;
+        }
+
+        // Mark device as logged
+        _loggedDeviceIds.add(id);
 
         if (!deviceMetrics.containsKey(id)) {
           deviceMetrics[id] = DeviceMetrics(
             deviceId: id,
             rssi: result.rssi,
             advertisementData: result.advertisementData,
-            scanStartTime: _scanStartTime, // Pass start time
+            scanStartTime: _scanStartTime,
           );
         } else {
           deviceMetrics[id]!.update(result.rssi, result.advertisementData);
         }
+
+        // ✅ Logging per device update
+        if (isLoggingEnabled.value) {
+          final metrics = deviceMetrics[id]!;
+
+          final serviceUuid = metrics.advertisementData.serviceUuids.isNotEmpty
+              ? metrics.advertisementData.serviceUuids.first.toString()
+              : "";
+
+          final line = [
+            DateTime.now().toIso8601String(),
+            id,
+            metrics.rssi,
+            metrics.averageRssi.toStringAsFixed(2),
+            metrics.minRssi,
+            metrics.maxRssi,
+            metrics.smoothedRssi.toStringAsFixed(2),
+            metrics.latencyMs ?? "",
+            metrics.advertisementData.txPowerLevel ?? "",
+            metrics.advertisementData.connectable,
+            serviceUuid,
+          ].join(",");
+
+          _currentSessionLogs.add(line);
+        }
       }
 
       update();
+    });
+
+    Future.delayed(Duration(seconds: 5), () async {
+      if (isLoggingEnabled.value && _scanStartTime != null) {
+        final scanEndTime = DateTime.now();
+        await _saveLogToFile(_scanStartTime!, scanEndTime);
+      }
     });
   }
 
