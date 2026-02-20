@@ -142,7 +142,7 @@ class StudentHomePageState extends State<StudentHomePage> {
       key: _messengerKey,
       appBar: AppBar(
         title: const Text(
-          "Student Home",
+          "Participant Home",
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
@@ -191,7 +191,7 @@ class StudentHomePageState extends State<StudentHomePage> {
                     child: Column(
                       children: [
                         const Text(
-                          "LOGGED IN AS STUDENT!",
+                          "LOGGED IN AS PARTICIPANT!",
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -231,7 +231,7 @@ class StudentHomePageState extends State<StudentHomePage> {
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    "Your Courses:",
+                    "Your Sessions:",
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -242,7 +242,7 @@ class StudentHomePageState extends State<StudentHomePage> {
                 const SizedBox(height: 10),
                 studentCourses.isEmpty
                     ? const Text(
-                        "No courses found",
+                        "No sessions found",
                         style: TextStyle(fontSize: 16, color: Colors.white70),
                       )
                     : SizedBox(

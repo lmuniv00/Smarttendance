@@ -376,7 +376,7 @@ class _ProfessorHomePageState extends State<ProfessorHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Professor Home",
+          "Coordinator Home",
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
@@ -426,7 +426,7 @@ class _ProfessorHomePageState extends State<ProfessorHomePage> {
                     child: Column(
                       children: [
                         const Text(
-                          "LOGGED IN AS PROFESSOR!",
+                          "LOGGED IN AS COORDINATOR!",
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -447,7 +447,7 @@ class _ProfessorHomePageState extends State<ProfessorHomePage> {
                 ),
                 const SizedBox(height: 30),
                 const Text(
-                  "Your Courses:",
+                  "Your Sessions:",
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -458,7 +458,7 @@ class _ProfessorHomePageState extends State<ProfessorHomePage> {
                 professorCourses.isEmpty
                     ? const Center(
                         child: Text(
-                          "No courses found.",
+                          "No sessions found.",
                           style: TextStyle(color: Colors.white70),
                         ),
                       )
@@ -482,7 +482,7 @@ class _ProfessorHomePageState extends State<ProfessorHomePage> {
                                 ),
                               ),
                               subtitle: Text(
-                                "Course Code: ${course['code']}",
+                                "Session Code: ${course['code']}",
                                 style: const TextStyle(color: Colors.white70),
                               ),
                               trailing: Column(
@@ -508,7 +508,7 @@ class _ProfessorHomePageState extends State<ProfessorHomePage> {
                                       const Padding(
                                         padding: EdgeInsets.all(8.0),
                                         child: Text(
-                                          "No students enrolled.",
+                                          "No participants enrolled.",
                                           style:
                                               TextStyle(color: Colors.white70),
                                         ),
@@ -610,7 +610,7 @@ class _ProfessorHomePageState extends State<ProfessorHomePage> {
                         ),
                         const SizedBox(height: 30),
                         const Text(
-                          "Connected Students",
+                          "Connected Participants",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,
