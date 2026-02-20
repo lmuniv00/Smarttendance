@@ -694,11 +694,6 @@ class _ProfessorHomePageState extends State<ProfessorHomePage> {
                                               color: Colors.white70),
                                         ),
                                         Text(
-                                          "Tx Power: ${metrics.advertisementData.txPowerLevel ?? "N/A"}",
-                                          style: const TextStyle(
-                                              color: Colors.white70),
-                                        ),
-                                        Text(
                                           "Connectable: ${metrics.advertisementData.connectable}",
                                           style: const TextStyle(
                                               color: Colors.white70),
